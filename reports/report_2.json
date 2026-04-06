@@ -1,0 +1,20 @@
+{
+  "patient_summary": "The patient reports weakness lasting 2 days and headache, with no known medical allergies.",
+  "reported_symptoms": [
+    "weakness",
+    "headache"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Mild symptoms with vitals within normal range.",
+  "confidence": 0.85
+}

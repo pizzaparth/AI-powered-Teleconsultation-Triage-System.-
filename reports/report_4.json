@@ -1,0 +1,20 @@
+{
+  "patient_summary": "Patient reports headaches and body weakness for one day.",
+  "reported_symptoms": [
+    "headaches",
+    "weakness"
+  ],
+  "symptom_duration": "1 day",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Mild symptoms with vitals within normal range.",
+  "confidence": 0.85
+}

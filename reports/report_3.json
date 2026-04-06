@@ -1,0 +1,19 @@
+{
+  "patient_summary": "Patient reports headaches lasting for 2 days.",
+  "reported_symptoms": [
+    "headaches"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Mild symptoms with no critical vitals or risk factors.",
+  "confidence": 0.85
+}
