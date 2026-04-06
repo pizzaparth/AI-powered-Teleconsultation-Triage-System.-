@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Paracetamol",
+        "symptoms": [
+            "Fever",
+            "Mild to moderate pain",
+            "Headache"
+        ],
+        "dosage": "500mg to 1000mg every 4 to 6 hours; maximum 4000mg per day",
+        "contraindications": [
+            "Severe liver impairment",
+            "Hypersensitivity to paracetamol"
+        ]
+    },
+    {
+        "name": "Oral Rehydration Salts (ORS)",
+        "symptoms": [
+            "Dehydration",
+            "Diarrhea",
+            "Vomiting"
+        ],
+        "dosage": "Dissolve one sachet in 1 liter of clean water; sip frequently based on fluid loss",
+        "contraindications": [
+            "Kidney failure",
+            "Intestinal obstruction",
+            "Severe persistent vomiting"
+        ]
+    },
+    {
+        "name": "Ibuprofen",
+        "symptoms": [
+            "Inflammation",
+            "Muscle aches",
+            "Menstrual cramps",
+            "Toothache"
+        ],
+        "dosage": "200mg to 400mg every 4 to 6 hours; maximum 1200mg per day",
+        "contraindications": [
+            "Asthma",
+            "Stomach ulcers",
+            "Third trimester of pregnancy",
+            "Kidney disease"
+        ]
+    },
+    {
+        "name": "Loratadine",
+        "symptoms": [
+            "Sneezing",
+            "Runny nose",
+            "Itchy eyes",
+            "Hives"
+        ],
+        "dosage": "10mg once daily",
+        "contraindications": [
+            "Severe liver disease",
+            "Known allergy to antihistamines"
+        ]
+    },
+    {
+        "name": "Dextromethorphan",
+        "symptoms": [
+            "Dry cough",
+            "Cough suppression"
+        ],
+        "dosage": "30mg every 6 to 8 hours; maximum 120mg per day",
+        "contraindications": [
+            "Chronic bronchitis",
+            "Emphysema",
+            "Use of MAO inhibitors within 14 days"
+        ]
+    }
+]
