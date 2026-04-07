@@ -1,0 +1,20 @@
+{
+  "patient_summary": "Patient reports cough and throat weakness for two days.",
+  "reported_symptoms": [
+    "cough",
+    "throat weakness"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Symptoms are mild with no severe risk factors or abnormal vitals.",
+  "confidence": 0.85
+}

@@ -1,0 +1,17 @@
+{
+  "patient_summary": "Patient reports being sick for two days with no specific symptoms mentioned.",
+  "reported_symptoms": [],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "No specific symptoms or vitals outside normal range.",
+  "confidence": 0.8
+}

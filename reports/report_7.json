@@ -1,0 +1,20 @@
+{
+  "patient_summary": "Patient reports cold symptoms and body weakness, with a warm-up lasting 2 days.",
+  "reported_symptoms": [
+    "cold",
+    "weakness"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Mild symptoms with vitals within normal range.",
+  "confidence": 0.85
+}

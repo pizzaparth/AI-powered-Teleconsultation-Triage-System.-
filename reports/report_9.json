@@ -1,0 +1,17 @@
+{
+  "patient_summary": "The patient reports high evaluation results with no specific symptoms mentioned.",
+  "reported_symptoms": [],
+  "symptom_duration": "",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "No specific symptoms or abnormal vital signs were reported.",
+  "confidence": 0.95
+}

@@ -1,0 +1,22 @@
+{
+  "patient_summary": "The patient reports headache, body aches, and fever lasting for 2 days with vomiting.",
+  "reported_symptoms": [
+    "headache",
+    "body aches",
+    "fever",
+    "vomiting"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "urgent",
+  "reason_for_priority": "Fever > 39°C and persistent vomiting for 2 days.",
+  "confidence": 0.85
+}

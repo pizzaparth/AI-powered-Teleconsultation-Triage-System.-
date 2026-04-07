@@ -1,0 +1,20 @@
+{
+  "patient_summary": "The patient has been vomiting for 2 days and reports weakness, with no severe symptoms.",
+  "reported_symptoms": [
+    "vomiting",
+    "weakness"
+  ],
+  "symptom_duration": "2 days",
+  "risk_factors": [],
+  "vitals": {
+    "heart_rate": 95,
+    "blood_pressure": "120/80",
+    "temperature": 37.5,
+    "spo2": 97,
+    "respiratory_rate": 18
+  },
+  "clinical_flags": [],
+  "triage_priority": "normal",
+  "reason_for_priority": "Mild symptoms with no severe signs of respiratory distress or cardiovascular issues.",
+  "confidence": 0.85
+}
