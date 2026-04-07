@@ -1,11 +1,10 @@
 # modules/tts.py
 # Parth Pancholi — Text-to-Speech module
-# Converts patient summary to audio, saves as MP3, and auto-plays it.
+# Converts patient summary to audio, saves as WAV, and auto-plays it.
 
 from __future__ import annotations
 
 import logging
-import os
 import platform
 import subprocess
 from pathlib import Path
@@ -13,45 +12,47 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-DEFAULT_OUTPUT   = "patient_summary.mp3"
-TTS_LANGUAGE     = "en"       # gTTS language code
-TTS_SLOW         = False      # False = normal speed, True = slower (clearer for rural use)
+DEFAULT_OUTPUT = "static/patient_summary.wav"
+TTS_RATE       = 150    # words per minute (lower = clearer for rural use)
+TTS_VOLUME     = 1.0    # 0.0 – 1.0
 
 
 # ── Internal helpers ───────────────────────────────────────────────────────────
 
 def _synthesize(text: str, output_path: Path) -> None:
     """
-    Convert *text* to speech and save as an MP3 file using gTTS.
-    gTTS uses Google's TTS engine — requires internet on first use,
-    but is the most reliable cross-platform option with no C++ deps.
+    Convert *text* to speech and save as a WAV file using pyttsx3.
+    Fully offline — no internet required, works on Windows / macOS / Linux.
     """
     try:
-        from gtts import gTTS
+        import pyttsx3
     except ModuleNotFoundError as exc:
         raise RuntimeError(
-            "gTTS is not installed. Run: pip install gtts"
+            "pyttsx3 is not installed. Run: pip install pyttsx3"
         ) from exc
 
     log.info("Synthesizing speech for %d chars of text …", len(text))
-    tts = gTTS(text=text, lang=TTS_LANGUAGE, slow=TTS_SLOW)
-    tts.save(str(output_path))
+
+    engine = pyttsx3.init()
+    engine.setProperty("rate",   TTS_RATE)
+    engine.setProperty("volume", TTS_VOLUME)
+
+    engine.save_to_file(text, str(output_path))
+    engine.runAndWait()
+
     log.info("Audio saved → %s", output_path)
 
 
 def _play_audio(path: Path) -> None:
     """
-    Auto-play the audio file without requiring any user interaction.
-    Uses the correct system command for Windows / macOS / Linux.
+    Auto-play the WAV file without requiring any user interaction.
     Runs in background so it doesn't block the API response.
     """
-    system = platform.system()
+    system   = platform.system()
     abs_path = str(path.resolve())
 
     try:
         if system == "Windows":
-            # PowerShell Media.SoundPlayer doesn't support MP3 —
-            # use the built-in wmplayer or start (which picks the default app)
             subprocess.Popen(
                 ["powershell", "-c", f'Start-Process "{abs_path}"'],
                 stdout=subprocess.DEVNULL,
@@ -65,9 +66,8 @@ def _play_audio(path: Path) -> None:
                 stderr=subprocess.DEVNULL,
             )
 
-        else:  # Linux
-            # Try common players in order of preference
-            for player in ["mpg123", "mpg321", "ffplay", "aplay"]:
+        else:  # Linux — prefer WAV-native ALSA players
+            for player in ["aplay", "paplay", "ffplay", "sox"]:
                 if subprocess.call(
                     ["which", player],
                     stdout=subprocess.DEVNULL,
@@ -82,14 +82,13 @@ def _play_audio(path: Path) -> None:
                     return
             log.warning(
                 "No audio player found on Linux. "
-                "Install one with: sudo apt install mpg123"
+                "Install one with: sudo apt install alsa-utils"
             )
             return
 
         log.info("Audio playback started (%s) → %s", system, abs_path)
 
     except Exception as exc:
-        # Playback failure should never crash the API pipeline
         log.warning("Audio playback failed (non-fatal): %s", exc)
 
 
@@ -101,22 +100,28 @@ def generate_tts(
     auto_play: bool = True,
 ) -> str:
     """
-    Convert *text* to speech, save as MP3, and optionally auto-play it.
+    Convert *text* to speech, save as WAV, and optionally auto-play it.
 
     Parameters
     ----------
     text        : The text to synthesize (typically the patient_summary field).
-    output_path : Where to save the MP3 file (default: patient_summary.mp3).
+    output_path : Where to save the WAV file (default: patient_summary.wav).
     auto_play   : If True, play the audio automatically after saving.
 
     Returns
     -------
-    str : Absolute path to the saved MP3 file.
+    str : Absolute path to the saved WAV file.
     """
     if not text or not text.strip():
         raise ValueError("TTS input text is empty — nothing to synthesize.")
 
     out = Path(output_path)
+
+    # Enforce .wav extension regardless of what was passed in
+    if out.suffix.lower() != ".wav":
+        log.warning("Output path had extension '%s' — changing to .wav", out.suffix)
+        out = out.with_suffix(".wav")
+
     out.parent.mkdir(parents=True, exist_ok=True)
 
     # 1. Synthesize and save

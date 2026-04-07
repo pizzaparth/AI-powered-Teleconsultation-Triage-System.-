@@ -1,7 +1,7 @@
 # api.py
 # FastAPI backend for the AI-powered rural healthcare triage platform.
-# Run with:  uvicorn api:app --reload
-# Docs at:   http://localhost:8000/docs
+# Run with:  uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+# Docs at:   http://<your-ip>:8000/docs
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # ── Ensure modules/ is importable regardless of working directory ──────────────
@@ -52,17 +53,34 @@ VITALS_PATH     = BASE_DIR / "vitals.json"
 TRANSCRIPT_PATH = BASE_DIR / "transcript.txt"
 MEDICINES_PATH  = BASE_DIR / "data" / "medicines.json"
 REPORTS_DIR     = BASE_DIR / "reports"
-TTS_OUTPUT_PATH = BASE_DIR / "patient_summary.mp3"
+STATIC_DIR      = BASE_DIR / "static"             # serves all WAV files
+TTS_OUTPUT_PATH = STATIC_DIR / "patient_summary.wav"
 
 # Ensure output directories exist at startup
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+
+# ── Static file serving — WAV reachable at /static/<filename> ─────────────────
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 # ── Pydantic models ────────────────────────────────────────────────────────────
 
+# ── Default vitals (used when no body is sent) ─────────────────────────────────
+DEFAULT_VITALS: dict[str, Any] = {
+    "heart_rate"      : 95,
+    "blood_pressure"  : "120/80",
+    "temperature"     : 37.5,
+    "spo2"            : 97,
+    "respiratory_rate": 18,
+}
+
+
 class VitalsPayload(BaseModel):
     """
     Hardware sensor vitals submitted by the IoT device.
+    All fields are optional — omitted fields fall back to DEFAULT_VITALS.
+    Send an empty body `{}` or no body at all to use all defaults.
 
     Example
     -------
@@ -76,7 +94,7 @@ class VitalsPayload(BaseModel):
         }
     }
     """
-    vitals: dict[str, Any]
+    vitals: dict[str, Any] = DEFAULT_VITALS
 
 
 class TriageResponse(BaseModel):
@@ -84,7 +102,8 @@ class TriageResponse(BaseModel):
     transcript     : str
     report         : dict[str, Any]
     recommendations: dict[str, Any]
-    tts_audio_path : str
+    tts_audio_path : str   # absolute path on server
+    tts_audio_url  : str   # downloadable URL e.g. http://192.168.1.x:8000/static/patient_summary.wav
 
 
 # ── Health check ───────────────────────────────────────────────────────────────
@@ -101,7 +120,7 @@ def health_check() -> dict[str, str]:
 # ── Main triage endpoint ───────────────────────────────────────────────────────
 
 @app.post("/triage", response_model=TriageResponse, tags=["Triage"])
-def triage(payload: VitalsPayload) -> TriageResponse:
+def triage(payload: VitalsPayload, request: Request) -> TriageResponse:
     """
     End-to-end triage pipeline.
 
@@ -110,7 +129,7 @@ def triage(payload: VitalsPayload) -> TriageResponse:
     2. Record patient audio via microphone and transcribe with Whisper → `transcript.txt`.
     3. Generate a structured triage report (qwen2.5:7b via Ollama, rule-based fallback).
     4. Generate medicine recommendations (phi3 via Ollama).
-    5. Return transcript, report, and recommendations as a single JSON response.
+    5. Generate TTS as WAV and return a URL to download/stream it.
 
     **Request body:**
     ```json
@@ -201,22 +220,31 @@ def triage(payload: VitalsPayload) -> TriageResponse:
             detail=f"Recommendations error: {exc}",
         ) from exc
 
-    # ── Step 5: Text-to-speech — speak the patient summary ────────────────────
+    # ── Step 5: Text-to-speech — generate WAV and build download URL ───────────
     tts_audio_path = ""
+    tts_audio_url  = ""
     try:
         patient_summary = report.get("patient_summary", "")
         if patient_summary:
-            log.info("Generating TTS for patient summary …")
+            log.info("Generating TTS WAV for patient summary …")
             tts_audio_path = generate_tts(
                 text        = patient_summary,
                 output_path = str(TTS_OUTPUT_PATH),
                 auto_play   = True,   # plays automatically on the server device
             )
-            log.info("TTS complete → %s", tts_audio_path)
+
+            # Build a URL the calling device can use to fetch the WAV file.
+            # request.base_url reflects the host:port the client actually hit,
+            # so it works on any IP — localhost or LAN.
+            base_url      = str(request.base_url).rstrip("/")
+            filename      = Path(tts_audio_path).name
+            tts_audio_url = f"{base_url}/static/{filename}"
+
+            log.info("TTS complete → %s | URL → %s", tts_audio_path, tts_audio_url)
         else:
             log.warning("No patient_summary found in report — skipping TTS.")
     except Exception as exc:
-        # TTS failure must never crash the pipeline — report and recs are more critical
+        # TTS failure must never crash the pipeline
         log.warning("TTS generation failed (non-fatal): %s", exc)
 
     # ── Step 6: Return unified response ───────────────────────────────────────
@@ -226,6 +254,7 @@ def triage(payload: VitalsPayload) -> TriageResponse:
         report          = report,
         recommendations = recommendations,
         tts_audio_path  = tts_audio_path,
+        tts_audio_url   = tts_audio_url,
     )
 
 
